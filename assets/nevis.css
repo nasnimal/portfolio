@@ -1,0 +1,36 @@
+.nevis-case-study {
+  width: 100%;
+  max-width: 1400px;
+  flex: none;
+  padding: 20px;
+  border-radius: 21px;
+  background: #fff;
+  color: #000;
+  font-family: "ABC Diatype Unlicensed Trial Regular", sans-serif;
+}
+
+.nevis-case-study__content { padding: 12px 20px 20px; }
+.nevis-case-study h2 {
+  margin: 0 0 24px;
+  font-family: inherit;
+  font-size: clamp(30px, 3.2vw, 40px);
+  font-weight: 400;
+  line-height: 1.1;
+}
+.nevis-case-study__details { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(220px, 1fr); gap: 30px; }
+.nevis-case-study__copy { max-width: 740px; }
+.nevis-case-study__copy p { margin: 0 0 18px; font-size: 20px; line-height: 1.2; }
+.nevis-case-study__copy p:last-child { margin-bottom: 0; }
+.nevis-case-study__meta { margin: 0; font-family: "ABC ROM Mono Unlicensed Trial Regular", monospace; font-size: 14px; }
+.nevis-case-study__meta > div { margin: 0 0 22px; }
+.nevis-case-study__meta dt { margin-bottom: 6px; color: #8a8f98; }
+.nevis-case-study__meta dd { margin: 0; }
+
+@media (max-width: 809px) {
+  .nevis-case-study { padding: 16px; border-radius: 16px; }
+  .nevis-case-study__content { padding: 12px 8px 8px; }
+  .nevis-case-study__details { display: flex; flex-direction: column-reverse; gap: 20px; }
+  .nevis-case-study__meta { display: flex; flex-wrap: wrap; gap: 20px; }
+  .nevis-case-study__meta > div { margin: 0; }
+  .nevis-case-study__copy p { font-size: 18px; }
+}
