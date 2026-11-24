@@ -1,0 +1,112 @@
+.page-aliexpress .s-1tfsl2h-container > section.feedback-marquee {
+  display: block !important;
+  opacity: 1 !important;
+  overflow: hidden !important;
+  padding: 10px 0 !important;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent) !important;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent) !important;
+}
+
+.page-aliexpress .feedback-marquee > ul {
+  width: max-content !important;
+  min-width: max-content;
+  max-width: none !important;
+  flex: none !important;
+  overflow: visible !important;
+  animation: feedback-loop var(--feedback-duration, 60s) linear infinite;
+}
+
+.page-aliexpress .feedback-marquee > ul > li {
+  flex: none;
+  scroll-snap-align: none !important;
+}
+
+.page-aliexpress .feedback-marquee:focus-within > ul,
+.page-aliexpress .feedback-marquee.is-offscreen > ul {
+  animation-play-state: paused;
+}
+
+.page-aliexpress .feedback-marquee:focus-visible {
+  outline: 2px solid #00378a;
+  outline-offset: 4px;
+}
+
+@keyframes feedback-loop {
+  to { transform: translate3d(calc(-1 * var(--feedback-distance, 0px)), 0, 0); }
+}
+
+.page-aliexpress .ab-story-copy .ab-story-line {
+  display: block;
+}
+
+.page-aliexpress .ab-story-copy .ab-story-line--heading {
+  margin-bottom: 12px;
+}
+
+.page-aliexpress .ab-story-copy .ab-story-line--bullet {
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.page-aliexpress .ab-story-copy .ab-story-line--bullet.is-muted {
+  opacity: .38;
+  transform: scale(.98);
+}
+
+.page-aliexpress [id^="ab-"][id$="-section"] [data-name^="paginator"] a .s-o4ttt2 {
+  background-color: rgba(255, 255, 255, .3) !important;
+  transition: background-color 260ms ease, transform 260ms ease;
+}
+
+.page-aliexpress [id^="ab-"][id$="-section"] [data-name^="paginator"] a[aria-current="step"] .s-o4ttt2 {
+  background-color: #fff !important;
+  transform: scale(1.13);
+}
+
+.page-aliexpress [id^="ab-"][id$="-section"] [data-name="b"] {
+  overflow: hidden !important;
+}
+
+.page-aliexpress [id^="ab-"][id$="-section"] [data-name="b"] img {
+  transform: translate3d(0, var(--ab-pan-y, 0px), 0) scale(var(--ab-zoom, 1));
+  transition: transform 500ms ease;
+}
+
+@media (max-width: 809px) {
+  .page-aliexpress [id^="ab-"][id$="-section"] > [id^="ab-"][id*="-state"],
+  .page-aliexpress [id^="ab-"][id$="-section"] > [data-name="spacer"] {
+    display: none !important;
+  }
+
+  .page-aliexpress [id^="ab-"][id$="-section"] > [data-name="sticky block"] {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  .page-aliexpress [id^="ab-"][id$="-section"] [data-name^="paginator"] {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-aliexpress .s-1tfsl2h-container > section.feedback-marquee {
+    overflow-x: auto !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+
+  .page-aliexpress .feedback-marquee > ul {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .page-aliexpress .feedback-marquee [data-feedback-clone] {
+    display: none !important;
+  }
+
+  .page-aliexpress .ab-story-copy .ab-story-line--bullet,
+  .page-aliexpress [id^="ab-"][id$="-section"] [data-name="b"] img {
+    transition: none !important;
+    transform: none !important;
+  }
+}
