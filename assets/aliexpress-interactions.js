@@ -73,6 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let current = -1;
     let frame = 0;
+    function updateClearance() {
+      if (mobile.matches) return;
+      const overflow = Math.max(0, ...tests.map((test) => test.scrollHeight - pin.clientHeight));
+      sequence.style.setProperty('--ab-tail-clearance', `${Math.ceil(overflow) + 32}px`);
+    }
     function updateSequence() {
       frame = 0;
       if (mobile.matches) return;
@@ -107,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
           test.classList.add('ab-test-sequence__slide');
           pin.append(test);
         }
+        updateClearance();
         scheduleUpdate();
       }
     }
@@ -119,10 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
       scheduleUpdate();
     }
     window.addEventListener('scroll', scheduleUpdate, { passive: true });
-    window.addEventListener('resize', scheduleUpdate);
+    window.addEventListener('resize', () => { updateClearance(); scheduleUpdate(); });
     window.addEventListener('hashchange', syncHash);
     mobile.addEventListener('change', () => { syncLayout(); syncHash(); });
     syncLayout();
+    document.fonts?.ready.then(updateClearance);
+    window.addEventListener('load', updateClearance, { once: true });
     requestAnimationFrame(() => requestAnimationFrame(syncHash));
   }
 });
