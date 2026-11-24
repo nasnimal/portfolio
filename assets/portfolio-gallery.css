@@ -54,6 +54,16 @@
   pointer-events: none;
 }
 
+/* The final AliExpress gallery contains portrait phone screenshots. */
+.page-aliexpress .s-1v63oe8-container .portfolio-preview-gallery {
+  max-width: 560px;
+  margin-inline: auto;
+}
+
+.page-aliexpress .s-1v63oe8-container .portfolio-preview-gallery__image {
+  object-fit: contain;
+}
+
 .portfolio-preview-gallery__arrow {
   position: absolute;
   z-index: 2;
