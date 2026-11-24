@@ -39,89 +39,90 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const mobile = window.matchMedia('(max-width: 809px)');
-  const stories = [...document.querySelectorAll('.page-aliexpress [id^="ab-"][id$="-section"]')]
-    .map((section) => {
-      const sticky = section.querySelector(':scope > [data-name="sticky block"]');
-      const markers = [...section.children].filter((child) => /^ab-\d+-state\d+$/.test(child.id));
-      if (!sticky || !markers.length) return null;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const tests = [1, 2, 3].map((number) => document.getElementById(`ab-${number}-section`));
+  if (tests.every(Boolean) && tests.every((test) => test.parentElement === tests[0].parentElement)) {
+    const placeholders = tests.map((test) => {
+      const placeholder = document.createComment(`${test.id} position`);
+      test.before(placeholder);
+      return placeholder;
+    });
+    const sequence = document.createElement('section');
+    sequence.className = 'ab-test-sequence';
+    sequence.setAttribute('aria-label', 'A/B test iterations');
+    const pin = document.createElement('div');
+    pin.className = 'ab-test-sequence__pin';
+    sequence.append(pin);
+    tests[0].before(sequence);
 
-      const paragraph = sticky.children[3]?.querySelector('p.s-text.text-content');
-      const bullets = [];
-      if (paragraph) {
-        let line = '';
-        for (const child of [...paragraph.childNodes]) {
-          if (child.nodeName === 'BR') {
-            if (line.trim()) bullets.push(line.trim());
-            line = '';
-          } else {
-            line += child.textContent;
-          }
-        }
-        if (line.trim()) bullets.push(line.trim());
-      }
+    const progress = document.createElement('nav');
+    progress.className = 'ab-test-sequence__progress';
+    progress.setAttribute('aria-label', 'A/B test progress');
+    const buttons = tests.map((_, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('aria-label', `Show A/B test ${index + 1}`);
+      button.addEventListener('click', () => {
+        const top = sequence.getBoundingClientRect().top + window.scrollY + index * window.innerHeight + 1;
+        window.scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+      });
+      progress.append(button);
+      return button;
+    });
+    pin.append(progress);
 
-      let bulletNodes = [];
-      if (paragraph && bullets.length > 1) {
-        paragraph.classList.add('ab-story-copy');
-        const heading = document.createElement('span');
-        heading.className = 'ab-story-line ab-story-line--heading';
-        heading.textContent = bullets[0];
-        bulletNodes = bullets.slice(1).map((text) => {
-          const span = document.createElement('span');
-          span.className = 'ab-story-line ab-story-line--bullet';
-          span.textContent = text;
-          return span;
-        });
-        paragraph.replaceChildren(heading, ...bulletNodes);
-      }
-
-      const dots = [...sticky.querySelectorAll('a[href*="#ab-"]')];
-      let current = -1;
-      function show(stage) {
-        if (stage === current) return;
-        current = stage;
-        const activeId = markers[stage].id;
-        for (const dot of dots) {
-          if (dot.hash === `#${activeId}`) dot.setAttribute('aria-current', 'step');
-          else dot.removeAttribute('aria-current');
-        }
-
-        const showAll = stage === 0 || (stage === markers.length - 1 && markers.length > bulletNodes.length + 1);
-        for (const [index, bullet] of bulletNodes.entries()) {
-          bullet.classList.toggle('is-muted', !showAll && index !== stage - 1);
-        }
-
-        const focus = !mobile.matches && stage > 0 && stage < markers.length - 1;
-        sticky.style.setProperty('--ab-zoom', focus ? '1.12' : '1');
-        sticky.style.setProperty('--ab-pan-y', focus ? `${(1 - stage * 2 / (markers.length - 1)) * 24}px` : '0px');
-      }
-
-      return { markers, show };
-    }).filter(Boolean);
-
-  if (stories.length) {
+    let current = -1;
     let frame = 0;
-    function updateStories() {
+    function updateSequence() {
       frame = 0;
-      for (const story of stories) {
-        if (mobile.matches) {
-          story.show(0);
-          continue;
-        }
-        let stage = 0;
-        const threshold = window.innerHeight * .35;
-        for (const [index, marker] of story.markers.entries()) {
-          if (marker.getBoundingClientRect().top <= threshold) stage = index;
-        }
-        story.show(stage);
+      if (mobile.matches) return;
+      const stage = Math.max(0, Math.min(tests.length - 1,
+        Math.floor(-sequence.getBoundingClientRect().top / window.innerHeight)));
+      if (stage === current) return;
+      current = stage;
+      for (const [index, test] of tests.entries()) {
+        const active = index === stage;
+        test.classList.toggle('is-active', active);
+        test.inert = !active;
+        test.setAttribute('aria-hidden', String(!active));
+        buttons[index].setAttribute('aria-current', active ? 'step' : 'false');
       }
     }
     function scheduleUpdate() {
-      if (!frame) frame = requestAnimationFrame(updateStories);
+      if (!frame) frame = requestAnimationFrame(updateSequence);
+    }
+    function syncLayout() {
+      if (mobile.matches) {
+        for (const [index, test] of tests.entries()) {
+          placeholders[index].after(test);
+          test.classList.remove('ab-test-sequence__slide', 'is-active');
+          test.inert = false;
+          test.removeAttribute('aria-hidden');
+        }
+        sequence.hidden = true;
+        current = -1;
+      } else {
+        sequence.hidden = false;
+        for (const test of tests) {
+          test.classList.add('ab-test-sequence__slide');
+          pin.append(test);
+        }
+        scheduleUpdate();
+      }
+    }
+    function syncHash() {
+      if (mobile.matches) return;
+      const match = window.location.hash.match(/^#ab-([1-3])(?:-section|-state\d+)$/);
+      if (!match) return;
+      const top = sequence.getBoundingClientRect().top + window.scrollY + (Number(match[1]) - 1) * window.innerHeight + 1;
+      window.scrollTo({ top, behavior: 'auto' });
+      scheduleUpdate();
     }
     window.addEventListener('scroll', scheduleUpdate, { passive: true });
     window.addEventListener('resize', scheduleUpdate);
-    mobile.addEventListener('change', scheduleUpdate);
-    scheduleUpdate();
+    window.addEventListener('hashchange', syncHash);
+    mobile.addEventListener('change', () => { syncLayout(); syncHash(); });
+    syncLayout();
+    requestAnimationFrame(() => requestAnimationFrame(syncHash));
   }
 });
