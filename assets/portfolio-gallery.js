@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobileLayout = window.matchMedia('(max-width: 809px)');
   const containers = document.querySelectorAll(
     '.s-8xp3uc-container, .s-188qxaa-container, .s-1e4e4hm-container, .s-170aepj-container, .s-1v63oe8-container'
   );
@@ -71,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     function show(index, instant = false) {
+      if (mobileLayout.matches) return;
       current = Math.max(0, Math.min(images.length - 1, index));
       updateDots();
       viewport.scrollTo({
@@ -95,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gallery.append(dots);
 
     viewport.addEventListener('scroll', () => {
-      if (drag || !viewport.clientWidth) return;
+      if (mobileLayout.matches || drag || !viewport.clientWidth) return;
       const index = Math.round(viewport.scrollLeft / viewport.clientWidth);
       if (index !== current && index >= 0 && index < images.length) {
         current = index;
@@ -104,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     viewport.addEventListener('pointerdown', (event) => {
+      if (mobileLayout.matches) return;
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       drag = {
         id: event.pointerId,
@@ -116,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.pointerType === 'mouse') event.preventDefault();
     });
     viewport.addEventListener('pointermove', (event) => {
+      if (mobileLayout.matches) return;
       if (!drag || drag.id !== event.pointerId) return;
       const dx = event.clientX - drag.x;
       const dy = event.clientY - drag.y;
@@ -144,18 +148,45 @@ document.addEventListener('DOMContentLoaded', () => {
     viewport.addEventListener('pointercancel', endDrag);
 
     gallery.addEventListener('keydown', (event) => {
+      if (mobileLayout.matches) return;
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
         event.preventDefault();
         show(current + (event.key === 'ArrowLeft' ? -1 : 1));
       }
     });
     new ResizeObserver(() => {
+      if (mobileLayout.matches) return;
       viewport.style.scrollBehavior = 'auto';
       viewport.scrollLeft = current * viewport.clientWidth;
       viewport.style.scrollBehavior = '';
     }).observe(viewport);
 
+    function syncLayout() {
+      if (mobileLayout.matches) {
+        drag = null;
+        viewport.classList.remove('is-dragging');
+        viewport.scrollLeft = 0;
+        gallery.removeAttribute('aria-roledescription');
+        gallery.removeAttribute('tabindex');
+      } else {
+        gallery.setAttribute('aria-roledescription', 'carousel');
+        gallery.tabIndex = 0;
+        show(current, true);
+      }
+    }
+    mobileLayout.addEventListener('change', syncLayout);
+
     container.replaceChildren(gallery);
     updateDots();
+    syncLayout();
+  }
+
+  for (const carousel of document.querySelectorAll('.page-aliexpress .s-qkm742-container section[aria-roledescription="carousel"]')) {
+    function syncNativeLayout() {
+      if (mobileLayout.matches) carousel.removeAttribute('aria-roledescription');
+      else carousel.setAttribute('aria-roledescription', 'carousel');
+    }
+    mobileLayout.addEventListener('change', syncNativeLayout);
+    syncNativeLayout();
   }
 });
