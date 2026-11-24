@@ -45,14 +45,14 @@
 .page-aliexpress [data-root] > .s-1v56tjb-container {
   display: none !important;
 }
-a[href="/portfolio#aliexpress"] .s-pu2a68-container::before {
-  content: "←";
+a[href="/portfolio#aliexpress"][aria-label="Back to portfolio"] .s-pu2a68-container {
+  display: none;
+}
+a[href="/portfolio#aliexpress"][aria-label="Back to portfolio"]::before {
+  content: "";
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  color: #1b1b1b;
-  font: 400 30px/1 Arial, sans-serif;
+  background: center / 24px 24px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='m15 5-7 7 7 7' stroke='%231b1b1b' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 .s-1tfsl2h-container > section {
   opacity: 1 !important;
